@@ -1,0 +1,22 @@
+version: '3.1'
+
+services:
+  demo-service:
+    container_name: demo-service
+    build:
+      context: ../
+      dockerfile: Dockerfile
+    restart: always
+
+  #OpenIG service
+  openig:
+    image: openidentityplatform/openig:5.0.11
+    restart: always
+    volumes:
+      - ./openig-config:/usr/local/openig-config
+    environment:
+      #OpenIG options
+      CATALINA_OPTS: -Dopenig.base=/usr/local/openig-config
+      TEST_HOST: http://demo-service:8080/
+    ports:
+      - "8080:8080"

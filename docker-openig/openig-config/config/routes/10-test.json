@@ -1,0 +1,43 @@
+{
+  "name": "${matches(request.uri.path, '^/test')}",
+  "condition": "${matches(request.uri.path, '^/test')}",
+  "monitor": true,
+  "timer": true,
+  "handler": {
+    "type": "Chain",
+    "config": {
+      "filters": [
+        {
+          "type": "HeaderFilter",
+          "config": {
+            "messageType": "REQUEST",
+            "remove": [
+              "Host"
+            ],
+            "add": {
+              "Host": [
+                "${matchingGroups(env['TEST_HOST'],\"(http|https)://(.[^/]*)\")[2]}"
+              ]
+            }
+          }
+        }
+      ],
+      "handler": "EndpointHandler"
+    }
+  },
+  "heap": [
+    {
+      "name": "EndpointHandler",
+      "type": "DispatchHandler",
+      "config": {
+        "bindings": [
+          {
+            "handler": "ClientHandler",
+            "capture": "all",
+            "baseURI": "${env['TEST_HOST']}"
+          }
+        ]
+      }
+    }
+  ]
+}
